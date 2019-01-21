@@ -1,0 +1,18 @@
+GIT
+  remote: git://github.com/Roman2K/metacli.git
+  revision: bd47bb65954b081b2cbe2d53896e37bc5d5daf09
+  specs:
+    metacli (0.1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  metacli!
+
+BUNDLED WITH
+   1.17.1
