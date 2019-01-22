@@ -5,7 +5,7 @@ require 'shellwords'
 require 'metacli'
 
 module Cmds
-  def self.cmd_on_err(webhook, exe, *args, on_ok: false)
+  def self.cmd_on_err(webhook, exe, *args, name: exe, on_ok: false)
     runtime, (out, err, st) = time { run exe, *args }
 
     fields = [
@@ -23,16 +23,16 @@ module Cmds
         value: fmt_block(err) },
     ]
     attach = if st.success?
-      { fallback: "Command OK: `#{exe}`",
+      { fallback: "Command OK: `#{name}`",
         color: "good",
         pretext: "Command successful",
-        author_name: exe,
+        author_name: name,
         fields: fields } if on_ok
     else
-      { fallback: "Command failed: `#{exe}`",
+      { fallback: "Command failed: `#{name}`",
         color: "danger",
         pretext: "Command failed",
-        author_name: exe,
+        author_name: name,
         fields: fields }
     end
 
