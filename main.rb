@@ -2,38 +2,37 @@ require 'net/http'
 require 'json'
 require 'stringio'
 require 'shellwords'
-require 'metacli'
 
 module Cmds
   def self.cmd_on_err(webhook, exe, *args, name: exe, on_ok: false)
     runtime, (out, err, st) = time { run exe, *args }
 
-    fields = [
-      { title: "Command",
-        value: "`#{Shellwords.join [exe, *args]}`" },
-      { title: "Exit code",
-        value: "%d" % st.exitstatus,
-        short: true },
-      { title: "Runtime",
-        value: "%.2fs" % runtime,
-        short: true },
-      { title: "STDOUT",
-        value: fmt_block(out) },
-      { title: "STDERR",
-        value: fmt_block(err) },
-    ]
+    fields = -> do
+      [ { title: "Command",
+          value: "`#{Shellwords.join [exe, *args]}`" },
+        { title: "Exit code",
+          value: "%d" % st.exitstatus,
+          short: true },
+        { title: "Runtime",
+          value: "%.2fs" % runtime,
+          short: true },
+        { title: "STDOUT",
+          value: fmt_block(out) },
+        { title: "STDERR",
+          value: fmt_block(err) } ]
+    end
     attach = if st.success?
       { fallback: "Command OK: `#{name}`",
         color: "good",
         pretext: "Command successful",
         author_name: name,
-        fields: fields } if on_ok
+        fields: fields[] } if on_ok
     else
       { fallback: "Command failed: `#{name}`",
         color: "danger",
         pretext: "Command failed",
         author_name: name,
-        fields: fields }
+        fields: fields[] }
     end
 
     Net::HTTP.
@@ -47,7 +46,7 @@ module Cmds
   end
 
   def self.run(*cmd)
-    out, err = StringIO.new, StringIO.new
+    out, err = Array.new(2) { StringIO.new.set_encoding ENC_BIN }
     tees = {
       out: Tee.new($stdout, out),
       err: Tee.new($stderr, err),
@@ -67,7 +66,22 @@ module Cmds
     [Time.now - t0, res]
   end
 
+  ENC_TEXT = Encoding::UTF_8
+  ENC_BIN = Encoding::BINARY
+
   def self.fmt_block(s)
+    unless s.encoding == ENC_TEXT && s.valid_encoding?
+      s, enc = s.dup, s.encoding
+      s.force_encoding ENC_TEXT
+      if !s.valid_encoding?
+        s.force_encoding enc
+        begin
+          s.encode ENC_TEXT
+        rescue Encoding::UndefinedConversionError
+          return "[Binary]"
+        end
+      end
+    end
     s = s.chomp
     s =~ /\S/ or return "None"
     "```\n#{s}\n```"
@@ -97,4 +111,7 @@ class Tee
   attr_reader :thr
 end
 
-MetaCLI.new(ARGV).run Cmds
+if $0 == __FILE__
+  require 'metacli'
+  MetaCLI.new(ARGV).run Cmds
+end

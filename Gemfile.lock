@@ -7,12 +7,14 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
+    minitest (5.11.3)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   metacli!
+  minitest
 
 BUNDLED WITH
    1.17.1
