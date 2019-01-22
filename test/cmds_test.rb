@@ -5,10 +5,35 @@ require 'main'
 
 class CmdsTest < Minitest::Test
   def test_run
-    out, err, st = Cmds.run "echo", "ok"
+    errcap = out = err = st = nil
+    outcap = capture '$stdout' do
+      errcap = capture '$stderr' do
+        out, err, st = Cmds.run "bash", "-c", "echo someout; echo someerr >&2"
+      end
+    end
     assert st.success?
     assert_equal Cmds::ENC_BIN, out.encoding
     assert_equal Cmds::ENC_BIN, err.encoding
+    assert_equal "someout\n", out
+    assert_equal "someout\n", outcap
+    assert_equal "someerr\n", err
+    assert_equal "someerr\n", errcap
+
+    _, _, st = Cmds.run "bash", "-c", "exit 2"
+    assert !st.success?
+    assert_equal 2, st.exitstatus
+  end
+
+  private def capture(var)
+    old = eval var
+    io = StringIO.new
+    eval "#{var} = io"
+    begin
+      yield
+    ensure
+      eval "#{var} = old"
+    end
+    io.string
   end
 
   def test_fmt_block
