@@ -52,7 +52,9 @@ module Cmds
       out: Tee.new($stdout, out),
       err: Tee.new($stderr, err),
     }
-    pid = spawn *cmd, {in: $stdin}.update(tees.transform_values &:w)
+    pid = Bundler.with_clean_env do
+      spawn *cmd, {in: $stdin}.update(tees.transform_values &:w)
+    end
     _, st = Process.wait2 pid
     tees.each_value { |t| t.w.close }
     tees.each_value { |t| t.thr.join }
