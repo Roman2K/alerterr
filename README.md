@@ -2,9 +2,9 @@
 
 > Pipe any command's errors to Slack
 
-STDOUT, STDERR and exit code are passed through as if the command was executed
+Passes through stdout, stderr, and exit code as if the command was executed
 directly. In case of non-zero exit-status, the contents of both output streams
-is posted to a Slack webhook. With `--on_ok`, post even upon successful runs.
+is posted to a Slack webhook. With `--on_ok`, post even upon success.
 
 ## Usage
 

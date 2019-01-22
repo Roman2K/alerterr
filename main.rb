@@ -69,7 +69,7 @@ module Cmds
 
   def self.fmt_block(s)
     s = s.chomp
-    s =~ /\A\s*\z/ and return "None"
+    s =~ /\S/ or return "None"
     "```\n#{s}\n```"
   end
 end
