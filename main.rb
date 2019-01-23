@@ -16,9 +16,9 @@ module Cmds
         { title: "Runtime",
           value: "%.2fs" % runtime,
           short: true },
-        { title: "STDOUT",
+        { title: "stdout",
           value: fmt_block(out) },
-        { title: "STDERR",
+        { title: "stderr",
           value: fmt_block(err) } ]
     end
     attach = if st.success?
