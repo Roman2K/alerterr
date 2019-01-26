@@ -13,3 +13,17 @@ See:
 ```bash
 $ bundle exec ruby main.rb -h
 ```
+
+Example user-wide executable usable as `alerterr --name=foo uptime`:
+
+```bash
+$ cat ~/bin/alerterr
+#!/usr/bin/env bash
+
+root=~/code/alerterr
+webhook="https://hooks.slack.com/services/XXX/YYY/ZZZ"
+
+export BUNDLE_GEMFILE="$root"/Gemfile
+
+exec bundle exec ruby "$root"/main.rb on_err "$webhook" "$@"
+```
