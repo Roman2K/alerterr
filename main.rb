@@ -4,6 +4,33 @@ require 'stringio'
 require 'shellwords'
 
 module Cmds
+  ##
+  # Send a Slack notification upon non-zero exit-status.
+  #
+  # Options:
+  #
+  #   --name=NAME
+  #
+  #       Custom name to appear in Slack. Defaults to the executable's filename.
+  #   
+  #   --on_ok
+  #
+  #       Notify even upon success.
+  #
+  #   --on_out=PATTERN
+  #
+  #       Notify upon success if stdout matches PATTERN.
+  #       PATTERN may be either string or a regex in the /.../ format.
+  #
+  #   --on_err=PATTERN
+  #
+  #       Notify upon success if stderr matches PATTERN.
+  #
+  # Add -- before the command to disambiguate on_err options from the command's.
+  # Not mandatory but recommended. Example:
+  #
+  #   alerterr --name=foo -- du --summarize -h
+  #
   def self.cmd_on_err(webhook, exe, *args, name: exe,
     on_ok: false, on_out: nil, on_err: nil
   )

@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/Roman2K/metacli.git
-  revision: bd47bb65954b081b2cbe2d53896e37bc5d5daf09
+  revision: 927b53af93ea580817cc58ddad898d70d486e1ec
   specs:
     metacli (0.1.0)
 

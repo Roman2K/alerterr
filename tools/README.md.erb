@@ -1,0 +1,35 @@
+# alerterr
+
+> Pipe any command's errors to Slack
+
+Passes through stdout, stderr, and exit code as if the command was executed
+directly. In case of non-zero exit-status, the contents of both output streams
+is posted to a Slack webhook. Optionally upon success as well.
+
+## Install
+
+1. Clone in, say, `~/code/alerterr`
+
+2. Create a wrapper with a custom webhook in your `$PATH`:
+
+    ```bash
+    $ cat ~/bin/alerterr
+    <%= read_exe(ENV.fetch("HOME") + "/bin/alerterr").chomp.gsub(/\n/, "\n    ") %>
+    ```
+
+3. Use as `alerterr [options] -- command [arg ...]`
+
+    The `alerterr` wrapper calls `main.rb on_err <webhook>` with its arguments
+    forwarded as-is.
+
+## Usage
+
+```bash
+$ alerterr -h
+<%= stdout("on_err", "-h").chomp %>
+```
+
+## Other
+
+This project relies on- and serves as a usage example for
+[MetaCLI](https://github.com/Roman2K/metacli) to do the arg parsing.

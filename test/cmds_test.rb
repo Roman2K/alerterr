@@ -57,5 +57,10 @@ class CmdsTest < Minitest::Test
     assert_equal /./, Cmds::Match.regexp("/./")
     assert_equal /./i, Cmds::Match.regexp("/./i")
     assert_equal /./imx, Cmds::Match.regexp("/./imx")
+
+    err = assert_raises RuntimeError do
+      Cmds::Match.regexp("/./1")
+    end
+    assert_match /unknown opt/, err.message
   end
 end
