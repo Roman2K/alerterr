@@ -50,4 +50,12 @@ class CmdsTest < Minitest::Test
     bin = File.read(__dir__ + "/textbin", mode: 'rb')
     assert Cmds.fmt_block(bin).include?(bin.dup.force_encoding(Cmds::ENC_TEXT))
   end
+
+  def test_match
+    assert_equal /\./, Cmds::Match.regexp(".")
+    assert_equal /\/\./, Cmds::Match.regexp("/.")
+    assert_equal /./, Cmds::Match.regexp("/./")
+    assert_equal /./i, Cmds::Match.regexp("/./i")
+    assert_equal /./imx, Cmds::Match.regexp("/./imx")
+  end
 end

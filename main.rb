@@ -4,7 +4,12 @@ require 'stringio'
 require 'shellwords'
 
 module Cmds
-  def self.cmd_on_err(webhook, exe, *args, name: exe, on_ok: false)
+  def self.cmd_on_err(webhook, exe, *args, name: exe,
+    on_ok: false, on_out: nil, on_err: nil
+  )
+    on_out = Match.regexp on_out if on_out
+    on_err = Match.regexp on_err if on_err
+
     runtime, (out, err, st) = time { run exe, *args }
 
     fields = -> do
@@ -21,16 +26,17 @@ module Cmds
         { title: "stderr",
           value: fmt_block(err) } ]
     end
-    attach = if st.success?
-      { fallback: "Command OK: `#{name}`",
-        color: "good",
-        pretext: "Command successful",
-        author_name: name,
-        fields: fields[] } if on_ok
-    else
+
+    attach = if !st.success?
       { fallback: "Command failed: `#{name}`",
         color: "danger",
         pretext: "Command failed",
+        author_name: name,
+        fields: fields[] }
+    elsif on_ok || out =~ on_out || err =~ on_err
+      { fallback: "Command OK: `#{name}`",
+        color: "good",
+        pretext: "Command successful",
         author_name: name,
         fields: fields[] }
     end
@@ -58,6 +64,21 @@ module Cmds
     tees.each_value { |t| t.w.close }
     tees.each_value { |t| t.thr.join }
     [out.string, err.string, st]
+  end
+
+  module Match
+    OPTS = {
+      i: Regexp::IGNORECASE,
+      m: Regexp::MULTILINE,
+      x: Regexp::EXTENDED,
+    }
+
+    def self.regexp(pat)
+      pat =~ %r%\A/(.*)/(.*)\z% or return Regexp.new Regexp.escape pat
+      Regexp.new $1, $2.chars.
+        map { |c| OPTS[c.to_sym] or raise "unknown option: %s" % c }.
+        inject(0) { |opts, opt| opts | opt }
+    end
   end
 
   def self.time
