@@ -126,12 +126,12 @@ module Cmds
         begin
           s.encode ENC_TEXT
         rescue Encoding::UndefinedConversionError
-          return "[Binary]"
+          return "[binary]"
         end
       end
     end
     s = s.chomp
-    s =~ /\S/ or return "None"
+    s =~ /\S/ or return "[empty]"
     "```\n#{s}\n```"
   end
 end
