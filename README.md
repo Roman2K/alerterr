@@ -6,6 +6,10 @@ Passes through stdout, stderr, and exit code as if the command was executed
 directly. In case of non-zero exit-status, the contents of both output streams
 is posted to a Slack webhook. Optionally upon success as well.
 
+Example notifications:
+
+<img alt="Notifications" src="./notifications.png" width="640"/>
+
 ## Install
 
 1. Clone in, say, `~/code/alerterr`
