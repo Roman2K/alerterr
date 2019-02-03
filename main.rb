@@ -39,33 +39,25 @@ module Cmds
 
     runtime, (out, err, st) = time { run exe, *args }
 
-    fields = -> do
-      [ { title: "Command",
-          value: "`#{Shellwords.join [exe, *args]}`" },
-        { title: "Exit code",
-          value: "%d" % st.exitstatus,
-          short: true },
-        { title: "Runtime",
-          value: "%.2fs" % runtime,
-          short: true },
-        { title: "stdout",
-          value: fmt_block(out) },
-        { title: "stderr",
-          value: fmt_block(err) } ]
+    make_attachment = -> do
+      { author_name: name,
+        text: {"stdout" => out, "stderr" => err}.
+          map { |t,s| "*#{t}:*\n#{fmt_block s}" }.
+          join("\n\n"),
+        footer: "#{Shellwords.join [exe, *args]}" \
+          " (exit: #{st.exitstatus}) in %.2fs" % runtime }
     end
 
     attach = if !st.success?
-      { fallback: "Command failed: `#{name}`",
+      make_attachment[].update \
+        fallback: "Command failed: `#{name}`",
         color: "danger",
-        pretext: "Command failed",
-        author_name: name,
-        fields: fields[] }
+        pretext: "Command failed"
     elsif on_ok || out =~ on_out || err =~ on_err
-      { fallback: "Command OK: `#{name}`",
+      make_attachment[].update \
+        fallback: "Command OK: `#{name}`",
         color: "good",
-        pretext: "Command successful",
-        author_name: name,
-        fields: fields[] }
+        pretext: "Command successful"
     end
 
     Net::HTTP.
