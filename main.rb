@@ -44,8 +44,8 @@ module Cmds
         text: {"stdout" => out, "stderr" => err}.
           map { |t,s| "*#{t}:*\n#{fmt_block s}" }.
           join("\n\n"),
-        footer: "#{Shellwords.join [exe, *args]}" \
-          " (exit: #{st.exitstatus}) in %.2fs" % runtime }
+        footer: "%s (exit: %d) in %.2fs" \
+          % [Shellwords.join([exe, *args]), st.exitstatus, runtime] }
     end
 
     attach = if !st.success?
