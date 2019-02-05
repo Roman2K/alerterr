@@ -21,7 +21,7 @@ Example notifications:
     #!/usr/bin/env bash
     
     root=~/code/alerterr
-    webhook="https://hooks.slack.com/services/AAA/BBB/CCC
+    webhook="https://hooks.slack.com/services/AAA/BBB/CCC"
     
     export BUNDLE_GEMFILE="$root"/Gemfile
     

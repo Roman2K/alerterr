@@ -12,7 +12,7 @@ def stdout(*args)
 end
 
 def read_exe(path)
-  File.read(path).sub(%r%(/services/)(.+)%) do
+  File.read(path).sub(%r%(/services/)([^"]+)%) do
     $1 + ("A".."Z").take($2.count("/")+1).map { |s| s * 3 }.join("/")
   end
 end
