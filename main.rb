@@ -32,12 +32,14 @@ module Cmds
   #   alerterr --name=foo -- du --summarize -h
   #
   def self.cmd_on_err(webhook, exe, *args, name: exe,
-    on_ok: false, on_out: nil, on_err: nil
+    on_ok: false, on_out: nil, on_err: nil, on_log: true
   )
     on_out = Match.regexp on_out if on_out
     on_err = Match.regexp on_err if on_err
 
     runtime, (out, err, st) = time { run exe, *args }
+
+    on_log = (LogScan::Multi[LogScan.new(out), LogScan.new(err)] if on_log)
 
     make_attachment = -> do
       { author_name: name,
@@ -48,11 +50,16 @@ module Cmds
           % [Shellwords.join([exe, *args]), st.exitstatus, runtime] }
     end
 
-    attach = if !st.success?
+    attach = if !st.success? || on_log&.error?
       make_attachment[].update \
         fallback: "Command failed: `#{name}`",
         color: "danger",
         pretext: "Command failed"
+    elsif on_log&.warn?
+      make_attachment[].update \
+        fallback: "Command warning: `#{name}`",
+        color: "warning",
+        pretext: "Command warning"
     elsif on_ok || out =~ on_out || err =~ on_err
       make_attachment[].update \
         fallback: "Command OK: `#{name}`",
@@ -85,21 +92,6 @@ module Cmds
     [out.string, err.string, st]
   end
 
-  module Match
-    OPTS = {
-      i: Regexp::IGNORECASE,
-      m: Regexp::MULTILINE,
-      x: Regexp::EXTENDED,
-    }
-
-    def self.regexp(pat)
-      pat =~ %r%\A/(.*)/(.*)\z% or return Regexp.new Regexp.escape pat
-      Regexp.new $1, $2.chars.
-        map { |c| OPTS[c.to_sym] or raise "unknown option: %s" % c }.
-        inject(0) { |opts, opt| opts | opt }
-    end
-  end
-
   def self.time
     t0 = Time.now
     res = yield
@@ -125,6 +117,41 @@ module Cmds
     s = s.chomp
     s =~ /\S/ or return "[empty]"
     "```\n#{s}\n```"
+  end
+end
+
+module Match
+  OPTS = {
+    i: Regexp::IGNORECASE,
+    m: Regexp::MULTILINE,
+    x: Regexp::EXTENDED,
+  }
+
+  def self.regexp(pat)
+    pat =~ %r%\A/(.*)/(.*)\z% or return Regexp.new Regexp.escape pat
+    Regexp.new $1, $2.chars.
+      map { |c| OPTS[c.to_sym] or raise "unknown option: %s" % c }.
+      inject(0) { |opts, opt| opts | opt }
+  end
+end
+
+class LogScan
+  def initialize(s)
+    @s = s
+  end
+
+  def warn?; match? "WARN" or error? end
+  def error?; match? "ERROR" or fatal? end
+  def fatal?; match? "FATAL" end
+
+  private def match?(level)
+    @s =~ /^ *#{Regexp.escape level}\b/
+  end
+
+  class Multi < Array
+    def warn?; any? &:warn? end
+    def error?; any? &:error? end
+    def fatal?; any? &:fatal? end
   end
 end
 

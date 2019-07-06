@@ -1,7 +1,5 @@
-$:.unshift __dir__ + "/.."
-
 require 'minitest/autorun'
-require 'main'
+require_relative '../main'
 
 class CmdsTest < Minitest::Test
   def test_run
@@ -51,16 +49,59 @@ class CmdsTest < Minitest::Test
     assert Cmds.fmt_block(bin).include?(bin.dup.force_encoding(Cmds::ENC_TEXT))
   end
 
-  def test_match
-    assert_equal /\./, Cmds::Match.regexp(".")
-    assert_equal /\/\./, Cmds::Match.regexp("/.")
-    assert_equal /./, Cmds::Match.regexp("/./")
-    assert_equal /./i, Cmds::Match.regexp("/./i")
-    assert_equal /./imx, Cmds::Match.regexp("/./imx")
+  def test_Match
+    assert_equal /\./, Match.regexp(".")
+    assert_equal /\/\./, Match.regexp("/.")
+    assert_equal /./, Match.regexp("/./")
+    assert_equal /./i, Match.regexp("/./i")
+    assert_equal /./imx, Match.regexp("/./imx")
 
     err = assert_raises RuntimeError do
-      Cmds::Match.regexp("/./1")
+      Match.regexp("/./1")
     end
     assert_match /unknown opt/, err.message
+  end
+
+  def test_LogScan
+    with_none = LogScan.new <<-EOS
+ INFO a
+DEBUG b
+    EOS
+    refute with_none.warn?
+    refute with_none.error?
+    refute with_none.fatal?
+
+    with_warn = LogScan.new <<-EOS
+ INFO a
+ WARN xxx
+DEBUG b
+    EOS
+    assert with_warn.warn?
+    refute with_warn.error?
+    refute with_warn.fatal?
+
+    with_error = LogScan.new <<-EOS
+ INFO a
+ERROR xxx
+DEBUG b
+    EOS
+    assert with_error.warn?
+    assert with_error.error?
+    refute with_error.fatal?
+
+    multi = LogScan::Multi[]
+    refute multi.warn?
+    refute multi.error?
+    refute multi.fatal?
+
+    multi = LogScan::Multi[with_none]
+    refute multi.warn?
+    refute multi.error?
+    refute multi.fatal?
+
+    multi = LogScan::Multi[with_none, with_error]
+    assert multi.warn?
+    assert multi.error?
+    refute multi.fatal?
   end
 end
