@@ -2,6 +2,7 @@ require 'net/http'
 require 'json'
 require 'stringio'
 require 'shellwords'
+require 'utils'
 
 module Cmds
   ##
@@ -46,8 +47,11 @@ module Cmds
         text: {"stdout" => out, "stderr" => err}.
           map { |t,s| "*#{t}:*\n#{fmt_block s}" }.
           join("\n\n"),
-        footer: "%s (exit: %d) in %.2fs" \
-          % [Shellwords.join([exe, *args]), st.exitstatus, runtime] }
+        footer: "%s%s (%s)" % [
+          [exe, *args].map { |s| s =~ /\s/ ? %("#{s}") : s }.join(" "),
+          (" - exit: %d" % st.exitstatus unless st.success?),
+          Utils::Fmt.duration(runtime),
+        ] }
     end
 
     attach = if !st.success? || on_log&.error?

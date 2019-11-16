@@ -4,6 +4,12 @@ GIT
   specs:
     metacli (0.1.0)
 
+GIT
+  remote: git://github.com/Roman2K/utils-ruby.git
+  revision: 80afb48c0603d97f609d83febffda66fc333aeca
+  specs:
+    utils-ruby (0.1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -15,6 +21,7 @@ PLATFORMS
 DEPENDENCIES
   metacli!
   minitest
+  utils-ruby!
 
 BUNDLED WITH
-   1.17.1
+   1.17.3

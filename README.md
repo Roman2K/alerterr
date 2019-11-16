@@ -37,7 +37,7 @@ Example notifications:
 
 ```bash
 $ alerterr -h
-Usage: main.rb on_err webhook exe [args ...] --name --on_ok --on_out --on_err
+Usage: main.rb on_err webhook exe [args ...] --name --on_ok --on_out --on_err --on_log
 
 Send a Slack notification upon non-zero exit-status.
 
