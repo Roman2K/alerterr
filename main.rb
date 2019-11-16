@@ -48,7 +48,8 @@ module Cmds
         text: {"stdout" => out, "stderr" => err}.
           map { |t,s| "*#{t}:*\n#{fmt_block(s) { |t| gist t }}" }.
           join("\n\n"),
-        footer: "%s%s (%s)" % [
+        footer: "%s@%s$ %s%s (%s)" % [
+          Etc.getlogin, Socket.gethostname,
           [exe, *args].map { |s| s =~ /\s/ ? %("#{s}") : s }.join(" "),
           (" - exit: %d" % st.exitstatus unless st.success?),
           Utils::Fmt.duration(runtime),
