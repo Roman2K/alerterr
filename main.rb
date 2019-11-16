@@ -3,6 +3,7 @@ require 'json'
 require 'stringio'
 require 'shellwords'
 require 'utils'
+require 'gist'
 
 module Cmds
   ##
@@ -45,7 +46,7 @@ module Cmds
     make_attachment = -> do
       { author_name: name,
         text: {"stdout" => out, "stderr" => err}.
-          map { |t,s| "*#{t}:*\n#{fmt_block s}" }.
+          map { |t,s| "*#{t}:*\n#{fmt_block(s) { |t| gist t }}" }.
           join("\n\n"),
         footer: "%s%s (%s)" % [
           [exe, *args].map { |s| s =~ /\s/ ? %("#{s}") : s }.join(" "),
@@ -79,6 +80,18 @@ module Cmds
       } if attach
       
     exit st.exitstatus
+  end
+  
+  def self.gist(text)
+    url = if text.bytesize >= 7800
+      begin
+        Gist.gist(text, filename: "alerterr.log",public: false).fetch "html_url"
+      rescue => err
+        $stderr.puts "alerterr: failed to create gist: #{err.class}: #{err}"
+        nil
+      end
+    end or return text
+    [url, nil, text[0,3500], "…", text[-3500..-1]].join "\n"
   end
 
   def self.run(*cmd)
@@ -120,6 +133,7 @@ module Cmds
     end
     s = s.chomp
     s =~ /\S/ or return "[empty]"
+    s = yield s if block_given?
     "```\n#{s}\n```"
   end
 end

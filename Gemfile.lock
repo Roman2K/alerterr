@@ -13,12 +13,14 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
+    gist (5.0.0)
     minitest (5.11.3)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  gist
   metacli!
   minitest
   utils-ruby!
