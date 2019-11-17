@@ -91,8 +91,11 @@ module Cmds
         $stderr.puts "alerterr: failed to create gist: #{err.class}: #{err}"
         nil
       end
-    end or return text
-    [url, nil, text[0,3500], "…", text[-3500..-1]].join "\n"
+    end
+    if url
+      text = [text[0,3500], "…", text[-3500..-1]].join "\n"
+    end
+    [text, url]
   end
 
   def self.run(*cmd)
@@ -134,8 +137,8 @@ module Cmds
     end
     s = s.chomp
     s =~ /\S/ or return "[empty]"
-    s = yield s if block_given?
-    "```\n#{s}\n```"
+    s, bottom = yield s if block_given?
+    ["```\n#{s}\n```", bottom].compact.join "\n\n"
   end
 end
 
@@ -164,7 +167,7 @@ class LogScan
   def fatal?; match? "FATAL" end
 
   private def match?(level)
-    @s =~ /^ *#{Regexp.escape level}\b/
+    @s =~ /^\s*#{Regexp.escape level}\b/
   end
 
   class Multi < Array
