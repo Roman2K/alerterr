@@ -144,15 +144,15 @@ end
 
 module Match
   OPTS = {
-    i: Regexp::IGNORECASE,
-    m: Regexp::MULTILINE,
-    x: Regexp::EXTENDED,
+    ?i => Regexp::IGNORECASE,
+    ?m => Regexp::MULTILINE,
+    ?x => Regexp::EXTENDED,
   }
 
   def self.regexp(pat)
     pat =~ %r%\A/(.*)/(.*)\z% or return Regexp.new Regexp.escape pat
     Regexp.new $1, $2.chars.
-      map { |c| OPTS[c.to_sym] or raise "unknown option: %s" % c }.
+      map { |c| OPTS[c] or raise "unknown option: %s" % c }.
       inject(0) { |opts, opt| opts | opt }
   end
 end
