@@ -1,20 +1,20 @@
 GIT
-  remote: git://github.com/Roman2K/metacli.git
-  revision: 927b53af93ea580817cc58ddad898d70d486e1ec
+  remote: https://github.com/Roman2K/metacli.git
+  revision: 9c89884a75664725a8c7f85c081fb699995cf582
   specs:
     metacli (0.1.0)
 
 GIT
-  remote: git://github.com/Roman2K/utils-ruby.git
-  revision: 80afb48c0603d97f609d83febffda66fc333aeca
+  remote: https://github.com/Roman2K/utils-ruby.git
+  revision: 3bc598d9387c484b9f9a8e29a4eb5a66368e8d4f
   specs:
     utils-ruby (0.1.0)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    gist (5.0.0)
-    minitest (5.11.3)
+    gist (5.1.0)
+    minitest (5.14.0)
 
 PLATFORMS
   ruby
@@ -26,4 +26,4 @@ DEPENDENCIES
   utils-ruby!
 
 BUNDLED WITH
-   1.17.3
+   2.1.4

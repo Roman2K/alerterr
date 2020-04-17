@@ -1,9 +1,9 @@
 require 'net/http'
-require 'json'
 require 'stringio'
-require 'shellwords'
 require 'utils'
 require 'gist'
+require 'etc'
+require 'socket'
 
 module Cmds
   ##
@@ -104,7 +104,7 @@ module Cmds
       out: Tee.new($stdout, out),
       err: Tee.new($stderr, err),
     }
-    pid = Bundler.with_clean_env do
+    pid = Bundler.with_original_env do
       spawn *cmd, {in: $stdin}.update(tees.transform_values &:w)
     end
     _, st = Process.wait2 pid
